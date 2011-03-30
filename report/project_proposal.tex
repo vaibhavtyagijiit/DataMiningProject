@@ -56,12 +56,27 @@ Do stock technicals really matter?
 \section{Data Sources}
 
 We will use publicly available data in Yahoo Finance to get historical stock
-prices and volumes on a day to day basis. We can combine this data with data
-from ScotTrade, which is behind a paywall, but for which Kevin has an account.
-We can calculate the technical indicators we wish to investigate based on the
-stock price and volume.
+prices and volumes on a day to day basis for the past several years. We can
+combine this data with data from ScotTrade, which is behind a paywall, but for
+which Kevin has an account.  We can calculate the technical indicators we wish
+to investigate based on the stock price and volume.
 
-\section{Data Mining}
+\section{Algorithms}
+
+\subsection{Supervised Learning}
+
+Using a feature vector of technical indicators and prices we will learn when to
+buy and sell a stock. The labels for data points will be either ``buy'',
+``sell'', or ``hold'' which we can determine by reading the stock prices and
+determining which periods of time would make money and which would lose money
+if we held the stock. We may try to have ``strong buy'' and ``strong sell'' as
+labels in order to have more human useful information come out of the learning.
+
+\subsection{ Clustering }
+
+?
+
+\section{Time Plan}
 
 \end{document}
 
