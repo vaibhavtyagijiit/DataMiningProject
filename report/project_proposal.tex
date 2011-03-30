@@ -1,0 +1,55 @@
+%==============================================================================
+% Formatting parameters.
+%==============================================================================
+
+\documentclass[11pt]{article} 
+\makeatletter                    % Make '@' accessible.
+\pagestyle{headings}                % We do our own page headers.
+\pagenumbering{arabic}
+
+\oddsidemargin=0in                % Left margin minus 1 inch.
+\evensidemargin=0in                % Same for even-numbered pages.
+\textwidth=6.5in                % Text width (8.5in - margins).
+\topmargin=0in                    % Top margin minus 1 inch.
+\headsep=0.2in                    % Distance from header to body.
+\textheight=8in                    % Body height (incl. footnotes)
+\skip\footins=4ex                % Space above first footnote.
+\hbadness=10000                    % No "underfull hbox" messages.
+\makeatother                    % Make '@' special again.
+
+\usepackage{epic,eepic}
+\usepackage{url}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{latexsym}
+\usepackage{fullpage}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{pdflscape}
+
+%==============================================================================
+% Macros.
+%==============================================================================
+\newcommand{\new}[1]{{\em #1\/}}        % New term (set in italics).
+\newcommand{\set}[1]{\{#1\}}            % Set (as in \set{1,2,3})
+\newcommand{\incrange}[1]{[#1]}         % Inclusive range
+\newcommand{\setof}[2]{\{\,{#1}|~{#2}\,\}}    % Set (as in \setof{x}{x > 0})
+\newcommand{\C}{\mathbb{C}}                    % Complex numbers.
+\newcommand{\N}{\mathbb{N}}                     % Positive integers.
+\newcommand{\Q}{\mathbb{Q}}                     % Rationals.
+\newcommand{\R}{\mathbb{R}}                     % Reals.
+\newcommand{\Z}{\mathbb{Z}}                     % Integers.
+\newcommand{\compl}[1]{\overline{#1}}        % Complement of ...            
+
+\begin{document}
+
+\title{Data Mining Project Proposal}
+\author{Kevin Tierney  (kevt@itu.dk), }
+
+\maketitle
+
+Hi.
+
+\end{document}
+
