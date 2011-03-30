@@ -45,15 +45,18 @@
 \begin{document}
 
 \title{Data Mining Project Proposal}
-\author{Kevin Tierney  (kevt@itu.dk), }
+\author{Konstantin Kutzkov (konk@itu.dk) \\ Kevin Tierney  (kevt@itu.dk)}
 
 \maketitle
 
-\section{Project Question}
+\vspace{-40pt}
 
-Do stock technicals really matter?
+\subsection*{Project Question}
 
-\section{Data Sources}
+Does past stock performance really matter?
+
+\vspace{-10pt}
+\subsection*{Data Sources}
 
 We will use publicly available data in Yahoo Finance to get historical stock
 prices and volumes on a day to day basis for the past several years. We can
@@ -61,9 +64,11 @@ combine this data with data from ScotTrade, which is behind a paywall, but for
 which Kevin has an account.  We can calculate the technical indicators we wish
 to investigate based on the stock price and volume.
 
-\section{Algorithms}
+\vspace{-10pt}
+\subsection*{Data Mining}
 
-\subsection{Supervised Learning}
+\vspace{-5pt}
+\subsubsection*{Supervised Learning}
 
 Using a feature vector of technical indicators and prices we will learn when to
 buy and sell a stock. The labels for data points will be either ``buy'',
@@ -72,11 +77,39 @@ determining which periods of time would make money and which would lose money
 if we held the stock. We may try to have ``strong buy'' and ``strong sell'' as
 labels in order to have more human useful information come out of the learning.
 
-\subsection{ Clustering }
+We plan to try support vector machines along with neural networks for this
+stage of the research. We will experiment with different kernels for the SVM
+and different hidden layer sizes for the neural network.
 
-?
+\vspace{-5pt}
+\subsubsection*{Frequent Pattern Mining }
 
-\section{Time Plan}
+We propose to attempt to determine rules about stock movements by extending the
+approach presented in [cite]. In [cite] each day is assigned a
+category based on the price movement of the stock. These categories can then be
+mined to determine rules.
+
+% Frequent patterns were mined
+% and rules were determined, such as "Yin-Yin" is followed by "Yin" with 50\%
+% confidence. We hope to include more sophisticated elements into the label
+% determination, such as stock volume and technicals such as the stochastic
+% oscillator and simple moving average that provide more long term context to
+% stock movements.
+ 
+We plan to use \dots ?
+
+\vspace{-10pt}
+\subsection*{Time Plan}
+\begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Mid April: Prepare full dataset
+    \item End April: Supervised Learning results
+    \item Early May: Frequent pattern mining results
+    \item May 18: Hand in report
+\end{itemize}
+
 
 \end{document}
 
