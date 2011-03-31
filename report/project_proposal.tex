@@ -85,9 +85,9 @@ and different hidden layer sizes for the neural network.
 \subsubsection*{Frequent Pattern Mining }
 
 We propose to attempt to determine rules about stock movements by extending the
-approach presented in [cite]. In [cite] each day is assigned a
+approach presented in \cite{fpstock}. In \cite{fpstock} each day is assigned a
 category based on the price movement of the stock. These categories can then be
-mined to determine rules.
+mined to determine rules. We will experiment with adding more categories based and more features of a stock price behavior, e.g. volume of sells, stochastic oscillator for a given period of time.
 
 % Frequent patterns were mined
 % and rules were determined, such as "Yin-Yin" is followed by "Yin" with 50\%
@@ -96,7 +96,7 @@ mined to determine rules.
 % oscillator and simple moving average that provide more long term context to
 % stock movements.
  
-We plan to use \dots ?
+We plan to use a  publicly available state-of-the sequential mining solver, e.g. Prefix Span \cite{prefixspan}. However, the exact representation as event sequences is yet to be decided.
 
 \vspace{-10pt}
 \subsection*{Time Plan}
@@ -110,6 +110,14 @@ We plan to use \dots ?
     \item May 18: Hand in report
 \end{itemize}
 
-
+\begin{thebibliography}{1}
+\bibitem{prefixspan}
+Jian Pei, Jiawei Han, Behzad Mortazavi-Asl, Jianyong Wang, Helen Pinto, Qiming Chen, Umeshwar Dayal, Meichun Hsu. 
+\newblock Mining Sequential Patterns by Pattern-Growth: The PrefixSpan Approach. 
+\newblock {\em IEEE Trans. Knowl. Data Eng. 16(11)}: 1424--1440 (2004)
+\bibitem{fpstock}
+Jo Ting, Tak-Chung Fu, Fu-Lai Chung: 
+\newblock Mining of Stock Data: Intra- and Inter-Stock Pattern Associative Classification. \newblock {\em DMIN 2006:} 30--36
+\end{thebibliography}
 \end{document}
 
