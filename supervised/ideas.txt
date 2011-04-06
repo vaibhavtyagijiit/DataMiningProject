@@ -1,0 +1,28 @@
+Supervised learning:
+
+Features:
+ - Last n days of stock price, highs, lows, volumes. (these all need to be normalized against eachother, i.e. volume day 1 and volume day 2 are seperate features, but have some kind of connection)
+ - Simple Moving Average (perhaps 100, 200, 300 days?)
+
+ - Exponential moving average (20, 40, ?) Formula on wikipedia
+ 
+ - Moving Average Convergence Divergence (MACD) Formula is 12-day EMA - 26 day EMA, signal line  = 9 day EMA. Feature should probably be the difference between the MACD and its signal line
+ 
+ - KDJ indicator: %K = 100[(C - L5Close) / (H5 - L5)], C = most recent closing price, L5 = low of previous 5 trading sessions, H5 = high of previous 5 trading sessions. Also has a line: %D = 100(H3/L3), %J = 3D - 2K.
+ 
+ - Relative Strength Index: RSI = 100 - (100 / 1 + (AG/AL)), AG = average gain of last 14 periods (ONLY USING GAINS), AL = average loss over last 14 periods (only using losses!)
+ 
+ - Williams %R: %R = (H(n)-C) / (H(n) - L(n))*100, C = today's closing price, H(n)/L(n) are the highest high and lowest low over the last n periods.
+
+ - Bollinger bands. Middle band = SMA, Upper band = K times an N period std dev above the middle band, lower band is the same but below the upper band, where N = 20, K = 2. Interested in the width of the bands. Formula is basically: (SMA + Ksig) where sigma is the std dev of the last n days.
+
+ - Stochastic oscillator: %K = (Close - lowest low) / (highest high - lowest low) * 100, %D = SMA of %K. Default setting is last 14 periods.
+
+ - Commodity channel index: CCI = ( TP - SMA(20) of TP) / 0.015(mean deviation), where TP = (High + Low + Close) / 3. Mean deviation calculated by: Subtract 20-period average of the TP from each period's TP. Then take the absolute value of those numbers. Sum those values. Divide by the number of periods.
+
+ - VMA - volume moving average
+
+ Lots of indicator formulas available at stockcharts.com
+
+
+Learning algorithms: SVN, Neural nets? Naive bayes? (note though that we do not have statistical independence of the features, so naive bayes may perform rather poorly), multinomial logistic regression? 
