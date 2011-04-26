@@ -114,7 +114,6 @@ def kdjIndicator(data, startIndex, periodLong = 10, periodShort = 7):
     return d - k
 
 if __name__ == '__main__':
-    data = loadData('basic_materials', 'avp')
-    #print features(data)
-    print ema(data, 100, 150, 100)
+    data = loadData('basic_materials', 'adm')
+    print features(data)
 
