@@ -36,41 +36,61 @@ def loadData(sector, ticker):
         cleaned.append(cl)
     return cleaned
 
+def featureNames():
+    return ["SMA200", \
+            "SMA200RATE", \
+            "EMA50", \
+            "EMA50RATE", \
+            #"KDJ5_3", \
+            "RSI14", \
+            "WilliamsPctR10", \
+            "WilliamsPctR60", \
+            "SOSC20", \
+            "SOSC20RATE", \
+            "CCI20", \
+            "VMA200", \
+            "VMA200RATE"]
+
 # Returns a feature vector of the following values:
 # SMA-200
 # SMA-200(today) / SMA-200(20 days ago)
 # EMA-50
 # EMA-50(today) / EMA-50(20 days ago)
-# MACD (difference from signal line today)
-# KDJ(5,3)
+# --- TODO --- MACD (difference from signal line today)
+# --- TODO --- KDJ(5,3)
 # RSI(14)
 # Williams%R(10)
-# Williams%R(30)
+# Williams%R(60)
 # stochasticOscillator(0, 20)
 # stochasticOscillator(20, 20) / stochasticOscillator(0, 20)
 # Commodity channel index(20)
 # VMA-200
 # VMA-200(today) / VMA-200(20 days ago)
 #
-def features(data):
+# TODO Sector / S&P features
+def features(data, startInd, endInd):
     feats = []
-    smas = sma(data, 0, 20, 200)
-    feats.append(smas[0])
-    feats.append(smas[-1] / smas[0]) # Direction of SMA over last 20 days
-    emas = ema(data, 0, 20, 50)
-    feats.append(emas[0])
-    feats.append(emas[-1] / emas[0]) # Direction of EMA over last 20 days
-    feats.append(macd(data))
-    #feats.append(kdjIndicator(data, 0))
-    feats.append(rsi(data, 14))
-    feats.append(williamsPctR(data, 0, 10))
-    feats.append(williamsPctR(data, 0, 60))
-    sosc20 = stochasticOscillator(data, 0, 20)
-    feats.append(sosc20)
-    feats.append(stochasticOscillator(data, 20, 20) / sosc20)
-    vmas = vma(data, 0, 20, 200)
-    feats.append(vmas[0])
-    feats.append(vmas[-1] / vmas[0])
+    for i in range(startInd, endInd):
+        feat = []
+        smas = sma(data, i, i + 20, 200)
+        feat.append(smas[0])
+        feat.append(smas[-1] / smas[0]) # Direction of SMA over last 20 days
+        emas = ema(data, i, i + 20, 50)
+        feat.append(emas[0])
+        feat.append(emas[-1] / emas[0]) # Direction of EMA over last 20 days
+        #feat.append(macd(data, i + 14))
+        #feats.append(kdjIndicator(data, 0))
+        feat.append(rsi(data, i, 14))
+        feat.append(williamsPctR(data, i, 10))
+        feat.append(williamsPctR(data, i, 60))
+        sosc20 = stochasticOscillator(data, i, 20)
+        feat.append(sosc20)
+        feat.append(stochasticOscillator(data, i + 20, 20) / sosc20)
+        feat.append(cci(data, i, 20))
+        vmas = vma(data, i, i + 20, 200)
+        feat.append(vmas[0])
+        feat.append(vmas[-1] / vmas[0])
+        feats.append(feat)
     return feats
 
 # Simple Moving Average -- Calculates an SMA for each day in startIndex to
@@ -105,19 +125,19 @@ def emarecur(data, startIndex, period):
         return alpha * data[startIndex][close] + (1 - alpha) * emarecur(data, startIndex + 1, period - 1)
 
 # Calculates the Moving Average Convergence/Divergence indicator (MACD)
-def macd(data):
-    global close
-    signal = emarecur(data, 0, 9)
-    # reset close to use on macdData
-    macdData = []
-    for i in range(26):
-        macd = emarecur(data, i, 12) - emarecur(data, i, 26)
-        macdData.append([macd])
-    saveClose = close
-    close = 0
-    signal = emarecur(macdData, 0, 9)
-    close = saveClose
-    return macd - signal
+#def macd(data, start):
+#    global close
+#    signal = emarecur(data, start, start + 9)
+#    # reset close to use on macdData
+#    macdData = []
+#    for i in range(start, start + 26):
+#        macd = emarecur(data, i, 12) - emarecur(data, i, 26)
+#        macdData.append([macd])
+#    saveClose = close
+#    close = 0
+#    signal = emarecur(macdData, start, start + 9)
+#    close = saveClose
+#    return macd - signal
 
 # Calculates the KDJ indicator. 
 def kdjIndicator(data, startIndex, periodLong = 10, periodShort = 7):
@@ -137,37 +157,36 @@ def rsi(data, startIndex, period = 14):
     numLoss = 0
     for i in range(startIndex, startIndex + period):
         delta = data[i][close] - data[i+1][close]
-        if delta > 0.0:
+        if delta > 1e-5:
             numGain += 1
             avgGain += delta
-        else:
+        elif delta < -1e-5:
             numLoss += 1
             avgLoss += delta
-        if numGain == 0:
-            avgGain = 1e-4
-        else:
-            avgGain /= numGain
-        if numLoss == 0:
-            avgLoss = 1e-4
-        else:
-            avgLoss /= numLoss
-        # real RSI has 100 - this value, but for us that does nothing
-        return (100 / (1 + (avgGain / avgLoss)))
+    if numGain == 0:
+        avgGain = 1e-4
+    else:
+        avgGain /= numGain
+    if numLoss == 0:
+        avgLoss = 1e-4
+    else:
+        avgLoss /= numLoss
+    # real RSI has 100 - this value, but for us that does nothing
+    return (100 / (1e-5 + 1 + (avgGain / avgLoss)))
 
 def williamsPctR(data, startIndex, period):
     (highestHigh,lowestLow) = highestHighLowestLow(data, startIndex, period)
     return (highestHigh - data[startIndex][close]) / (highestHigh - lowestLow)
 
 def stochasticOscillator(data, startIndex, period):
-    (hH, lL) = highestHighLowestLow(data, startIndex, period)
-    return (data[startIndex][close] - lL) / (hH - lL)
+    (hH, lL) = highestHighLowestLow(data, startIndex + 1, period)
+    return (data[startIndex][close] - lL + 1e-5) / (hH - lL)
 
 # Commodity channel index
-def cci(data, startIndex):
-    period = 20.0
+def cci(data, startIndex, period = 20):
     tpSma = 0.0
     tps = []
-    for i in range(period):
+    for i in range(startIndex, startIndex + period):
         tp = (data[i][high] + data[i][low] + data[i][close]) / 3.0
         tps.append(tp)
         tpSma += tp
@@ -176,7 +195,7 @@ def cci(data, startIndex):
     for i in range(period):
         meanDev += tp - tps[i]
     meanDev /= period
-    return (tp[0] - tpSma) / (0.015 * meanDev)
+    return (tps[0] - tpSma) / (0.015 * meanDev)
 
 def vma(data, startIndex, endIndex, period):
     global close
@@ -207,7 +226,23 @@ def highestHighLowestLow(data, startIndex, period):
         lowestLow = min(data[i][low], lowestLow)
     return (highestHigh, lowestLow)
 
+# Normalizes the features in the feature vector
+def normalize(feats):
+    n = len(feats[0])
+    mins = [99999999.9] * n
+    maxs = [-99999999.9] * n
+    for featvec in feats:
+        for i, feat in enumerate(featvec):
+            mins[i] = min(mins[i], feat)
+            maxs[i] = max(maxs[i], feat)
+    normalized = []
+    for featvec in feats:
+        normalized.append([0.0] * n)
+        for i, feat in enumerate(featvec):
+            normalized[-1][i] = (feat - mins[i]) / float(maxs[i] - mins[i])
+    return normalized
+
 if __name__ == '__main__':
     data = loadData('basic_materials', 'adm')
-    print features(data)
+    print features(data, 100, 150)
 
