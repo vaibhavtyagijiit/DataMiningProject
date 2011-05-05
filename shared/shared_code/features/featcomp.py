@@ -14,6 +14,16 @@ low = 3
 close = 4
 volume = 5
 
+def loadAllData(sector):
+	path = "%s/%s/" % (dataDir, sector)
+	if not os.path.exists(path):
+            print "Unable to find path"
+            sys.exit(1)
+	listing = os.listdir(path)
+	for infile in listing:
+		print "current file is: " + infile
+	return
+
 def loadData(sector, ticker):
     path = "%s/%s/%s.csv" % (dataDir, sector, ticker)
     if not os.path.exists(path):
@@ -52,6 +62,31 @@ def loadData(sector, ticker):
 # VMA-200
 # VMA-200(today) / VMA-200(20 days ago)
 #
+#make it to work for a particular day
+def findDay(data, day):
+	i = 0
+	for d in data:
+		i += 1
+		if d[date] == day:
+			print d
+			break
+	if i < len(data):
+		return i
+	else:
+		print "No such date"
+		sys.exit(1)
+	
+def featuresDay(data, day):
+	feats = []
+	i = findDay(data, day)
+	smas = sma(data, i, i+20, 200)
+	feats.append(smas[0])
+	feats.append(smas[-1] / smas[0]) # Direction of SMA over last 20 days
+	emas = ema(data, i, i+20, 50)
+	feats.append(emas[0])
+	feats.append(emas[-1] / emas[0]) # Direction of EMA over last 20 days
+	#ToDo
+	return feats
 def features(data):
     feats = []
     smas = sma(data, 0, 20, 200)
@@ -79,11 +114,13 @@ def sma(data, startIndex, endIndex, period):
     smas = []
     curSma = 0.0
     for i in range(startIndex, endIndex + period):
+    	print "date", i, len(data)
         if i - period >= startIndex:
             smas.append(curSma)
             curSma = curSma - (data[i - period][close] / period) + (data[i][close] / period)
         else:
             curSma += (data[i][close] / period)
+    #print smas
     return smas
 
 # Exponential Moving Average -- Calculates an EMA for each day in startIndex to
@@ -210,5 +247,14 @@ def highestHighLowestLow(data, startIndex, period):
 if __name__ == '__main__':
     data = loadData('basic_materials', 'avp')
     #print features(data)
-    print ema(data, 100, 150, 100)
-
+    #loadAllData('basic_materials')
+    #print ema(data, 100, 150, 100)
+    day = '2010-04-30'
+    #print("day ", findDay(data, day))
+    print featuresDay(data, day)
+    
+    f = open('test.txt', 'w')
+    #feat = [] 
+    feat = featuresDay(data, day)
+    for line in feat:
+    	    f.write('%f'%(line))

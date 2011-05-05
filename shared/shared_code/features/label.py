@@ -7,6 +7,98 @@ from featcomp import *
 #  - 1 : max gain (closing)
 #  - 2 : period end gain (closing)
 # Returns labels representing the numeric value of the label strategy if stock was bought on a given day
+
+def computeCoeff(data, earlyInd, lateInd):
+	volumes = []
+	
+	for i in range(lateInd, earlyInd + 1):
+    	    volumes.append(data[i][volume])
+    	volumes.sort()
+        k = volumes[-1] #or maybe take the median
+        return k
+        
+def average(liste):
+	summe =0
+	for i in liste:
+		summe +=i
+	return float(summe)/len(liste)
+	
+
+	
+def labelPeriodsStandard(data, earlyInd, lateInd, timeFrame, threshold):
+	labels = []
+	i = lateInd
+	
+	while (i + timeFrame < earlyInd):
+		k = (data[i][close] - data[i+timeFrame][openp])/data[i][close]
+		if math.fabs(k) < threshold:
+			labels.insert(0, 'H')
+		elif k >= threshold:
+			labels.insert(0, 'R')
+		elif k <= -threshold:
+			labels.insert(0, 'F')
+	
+		i += timeFrame
+	return labels
+        
+def labelNumericTimeFrames(data, earlyInd, lateInd, labelPeriod, labelStrategy, timeFrame):
+    results = []
+    i = lateInd + labelPeriod - 1
+    while (i < earlyInd + 1):
+    	t=0
+    	labels = []
+    	while t<timeFrame:
+    		s = i+t
+		if labelStrategy < 2:
+		    avg = 0.0
+		    maxGain = -99999999
+		    for d in reversed(data[s - labelPeriod:s]):
+			maxGain = max(maxGain, d[close] - data[s][close])
+			#print "close price", d[close] -  data[s][close]
+			avg += d[close] - data[s][close]
+		    avg /= labelPeriod
+		    if labelStrategy == 0:
+	        	labels.append(avg)
+                    else:
+                	labels.append(maxGain)
+                elif labelStrategy == 2:
+               	       	labels.append(data[s - labelPeriod][close] - data[s][close])
+               	t +=1
+        i += timeFrame
+        results.append(average(labels)) 	
+    return results
+
+
+def labelNumericWeighted(data, earlyInd, lateInd, labelPeriod, labelStrategy):
+    volumes = []
+    #print earlyInd + 1, lateInd
+    for i in range(lateInd, earlyInd + 1):
+    	    volumes.append(data[i][volume])
+    volumes.sort()
+    k = volumes[-1] #or maybe take the median
+    
+    #print "sorted volumes", k, volumes
+    labels = []
+    for i in reversed(range(lateInd + labelPeriod - 1, earlyInd + 1)):
+    	coeff = float(data[i - labelPeriod][volume])/k
+    	coeff = 1 + 0.2*coeff
+        #print coeff
+        if labelStrategy < 2:
+            avg = 0.0
+            maxGain = -99999999
+            for d in reversed(data[i - labelPeriod:i]):
+                maxGain = max(maxGain, coeff*(d[close] - data[i][close]))
+                avg += coeff*(d[close] - data[i][close])
+            avg /= labelPeriod
+            if labelStrategy == 0:
+                labels.append(avg)
+            else:
+                labels.append(maxGain)
+        elif labelStrategy == 2:
+            labels.append(coeff*(data[i - labelPeriod][close] - data[i][close]))
+    return labels
+    
+    
 def labelNumeric(data, earlyInd, lateInd, labelPeriod, labelStrategy):
     labels = []
     for i in reversed(range(lateInd + labelPeriod - 1, earlyInd + 1)):
@@ -15,6 +107,7 @@ def labelNumeric(data, earlyInd, lateInd, labelPeriod, labelStrategy):
             maxGain = -99999999
             for d in reversed(data[i - labelPeriod:i]):
                 maxGain = max(maxGain, d[close] - data[i][close])
+                #print "close price", d[close] -  data[i][close]
                 avg += d[close] - data[i][close]
             avg /= labelPeriod
             if labelStrategy == 0:
@@ -27,7 +120,7 @@ def labelNumeric(data, earlyInd, lateInd, labelPeriod, labelStrategy):
 
 # Turns numeric labels indicating gain into 5 categories: strong/weak buy/sell and hold
 # The last 5 parameters indicate the amount of the labels that should be of that kind. These number must sum to 1.0
-def label5Class(data, earlyInd, lateInd, labels, sbAmt, bAmt, hAmt, sAmt, ssAmt):
+def label5Class(data, labels, sbAmt, bAmt, hAmt, sAmt, ssAmt):
     sum = sbAmt + bAmt + hAmt + sAmt + ssAmt
     if not (sum - 1e-4 <= 1.0 and sum + 1e-4 >= 1.0):
         print "Invalid label amounts: %f %f %f %f %f does not sum to 1.0 (sums to %f)" % (sbAmt, bAmt, hAmt, sAmt, ssAmt, sum)
@@ -40,6 +133,7 @@ def label5Class(data, earlyInd, lateInd, labels, sbAmt, bAmt, hAmt, sAmt, ssAmt)
     totalLabels = len(lblInd)
     lblCounts = [ssAmt, sAmt, hAmt, bAmt, sbAmt]
     lblCounts = map(lambda x: round(x * totalLabels), lblCounts)
+    
     retLabels = ['unlabeled'] * totalLabels
     for lbl, ind in lblInd:
         if lblCounts[0] > 0:
@@ -56,23 +150,50 @@ def label5Class(data, earlyInd, lateInd, labels, sbAmt, bAmt, hAmt, sAmt, ssAmt)
             retLabels[ind] = 'buy'
         else:
             retLabels[ind] = 'strong_buy'
-    print lblInd
+    #print lblInd
     return retLabels
 
+#returns the next working day, well, unless Christmas
+#todo, end of month
 def dateToIndex(data, day, month, year):
     day = int(day)
     month = int(month)
     year = int(year)
     for i,d in enumerate(data):
         (sy, sm, sd) = map(int, d[date].split("-"))
-        if day == sd and sm == month and sy == year:
+        if (day == sd and sm == month and sy == year) or (day+1 == sd and sm == month and sy == year) or (day+2 == sd and sm == month and sy == year):
             return i
     print "Unable to find given date (%i-%i-%i) in the stock data." % (day, month, year)
     sys.exit(1)
+    
+    
+def label_function(file_name, labels):
+	f = open('../%s.txt'%file_name, 'w')
+	
+	for label in labels:
+		if label == 'strong_sell':
+			f.write('1')
+		elif label == 'sell':
+			f.write('2')
+		elif label == 'hold':
+			f.write('3')
+		elif label == 'buy':
+			f.write('4')
+		elif label == 'strong_buy':
+			f.write('5')
+	return
+	
+def label_standard(file_name, labels):
+	f = open('../%s.txt'%file_name, 'w')
+	
+	for l in labels:
+		f.write(l)
+
+	return
 
 if __name__ == '__main__':
     args = sys.argv
-    if len(args) >= 7:
+    if len(args) >= 9:
         sector = args[1]
         ticker = args[2].lower()
         (sday, smonth, syear) = args[3].split("-")
@@ -83,12 +204,26 @@ if __name__ == '__main__':
         labelPeriod = int(args[5])
         labelStrategy = int(args[6])
         labelsn = labelNumeric(data, startInd, endInd, labelPeriod, labelStrategy)
-        classLabels = label5Class(data, startInd, endInd, labelsn, 0.05, 0.2, 0.5, 0.2, 0.05)
-        print classLabels
+        labelsnW = labelNumericWeighted(data, startInd, endInd, labelPeriod, labelStrategy)
+        timeFrame = int(args[7])
+        labelsTimeFrames = labelNumericTimeFrames(data, startInd, endInd, labelPeriod, labelStrategy, timeFrame)
+        classLabels = label5Class(data, labelsTimeFrames, 0.0, 0.25, 0.5, 0.25, 0.0)
+        labelsStandard = labelPeriodsStandard(data, startInd, endInd, timeFrame, 0.02)
+        #print labelsStandard
+        #print len(labelsTimeFrames)
+        #print len(classLabels)
+        #print len(labelsnW)
+	#print "time frame", average(labelsTimeFrames) 
+	#print "\n standard", average(labelsn)
+	#print "\n \n weighted", average(labelsnW)
+	
+	label_standard(args[8], labelsStandard)		
+	
     else:
-        print "Usage: python label.py sector ticker start-label[dd-mm-yyyy] end-label[dd-mm-yyyy] label_period label_strategy"
+        print "Usage: python label.py sector ticker start-label[dd-mm-yyyy] end-label[dd-mm-yyyy] label_period label_strategy time_frame output_file"
         print "label_period: Number of stock pricing periods to perform the label analysis over"
         print "label_strategy: 0 = average gain over period, 1 = max gain over period, 2 = end gain over period. All labeling strategies use the period closing price."
+        print "time_frame: the length of the period to be labeled"
         sys.exit(1)
 
 
