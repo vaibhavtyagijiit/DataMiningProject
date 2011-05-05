@@ -1,0 +1,69 @@
+import java.util.Hashtable;
+import java.util.LinkedList;
+
+
+public class CorrelatedSequencesMining {
+	
+	public static String combineStocks(String s1, String s2, int period){
+		
+		if (s1.length() != s2.length()){
+			System.out.println("Inputs must be over same period: " + s1.length() + " " + s2.length());
+			System.exit(0);
+		}
+			
+		StringBuilder sb = new StringBuilder();
+	
+		int ind =0;
+		
+		for (int i =0; i < s2.length()-period-1; i++){
+			ind = 0;
+			while (ind<period)
+				sb.append(s1.charAt(i+ind++));
+				
+			sb.append(s2.charAt(i+ind));
+		}
+		
+		return sb.toString();
+	}
+	
+	public static double support(String input, String countString){
+		 return 
+		  (double)(input.split("\\Q"+countString+"\\E", -1).length - 1)/(input.length() - countString.length() +1);
+		}
+	
+	public static LinkedList<String> frequent(String input, int frame, double support){
+		LinkedList<String> results = new LinkedList<String>();
+		Hashtable<String, Integer> ht = new Hashtable<String, Integer>();
+		
+		for (int i =0; i< input.length()-frame; i+= frame){
+			String substr = input.substring(i, i+frame);
+			if (ht.containsKey(substr))
+				ht.put(substr, ht.get(substr) + 1);
+			else ht.put(substr, 1);
+		}
+		
+		double denom = input.length()/(double)frame;
+		
+		for (String s : ht.keySet())
+			if (ht.get(s)/denom >= support)
+				results.add(s);
+		
+		return results; 
+	}
+	
+	public static void main(String[] args){
+		String s1 = "123456789123678123456123234123123123456234234456456456234456234456123234123234456123234456";
+		String s2 = "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK";
+		
+		int period = 3;
+		int frame = period + 1;
+		
+		String comb= combineStocks(s1, s2, period);
+		
+		LinkedList<String> results = frequent(comb, frame, 0.05);
+		
+		for (String s:results)
+			System.out.println(s);
+	}
+
+}

@@ -22,24 +22,6 @@ def average(liste):
 	for i in liste:
 		summe +=i
 	return float(summe)/len(liste)
-	
-
-	
-def labelPeriodsStandard(data, earlyInd, lateInd, timeFrame, threshold):
-	labels = []
-	i = lateInd
-	
-	while (i + timeFrame < earlyInd):
-		k = (data[i][close] - data[i+timeFrame][openp])/data[i][close]
-		if math.fabs(k) < threshold:
-			labels.insert(0, 'H')
-		elif k >= threshold:
-			labels.insert(0, 'R')
-		elif k <= -threshold:
-			labels.insert(0, 'F')
-	
-		i += timeFrame
-	return labels
         
 def labelNumericTimeFrames(data, earlyInd, lateInd, labelPeriod, labelStrategy, timeFrame):
     results = []
@@ -165,31 +147,6 @@ def dateToIndex(data, day, month, year):
             return i
     print "Unable to find given date (%i-%i-%i) in the stock data." % (day, month, year)
     sys.exit(1)
-    
-    
-def label_function(file_name, labels):
-	f = open('../%s.txt'%file_name, 'w')
-	
-	for label in labels:
-		if label == 'strong_sell':
-			f.write('1')
-		elif label == 'sell':
-			f.write('2')
-		elif label == 'hold':
-			f.write('3')
-		elif label == 'buy':
-			f.write('4')
-		elif label == 'strong_buy':
-			f.write('5')
-	return
-	
-def label_standard(file_name, labels):
-	f = open('../%s.txt'%file_name, 'w')
-	
-	for l in labels:
-		f.write(l)
-
-	return
 
 if __name__ == '__main__':
     args = sys.argv
@@ -208,19 +165,32 @@ if __name__ == '__main__':
         timeFrame = int(args[7])
         labelsTimeFrames = labelNumericTimeFrames(data, startInd, endInd, labelPeriod, labelStrategy, timeFrame)
         classLabels = label5Class(data, labelsTimeFrames, 0.0, 0.25, 0.5, 0.25, 0.0)
-        labelsStandard = labelPeriodsStandard(data, startInd, endInd, timeFrame, 0.02)
-        #print labelsStandard
-        #print len(labelsTimeFrames)
-        #print len(classLabels)
-        #print len(labelsnW)
-	#print "time frame", average(labelsTimeFrames) 
-	#print "\n standard", average(labelsn)
-	#print "\n \n weighted", average(labelsnW)
+        print len(labelsTimeFrames)
+        print len(classLabels)
+        print len(labelsnW)
+	print "time frame", average(labelsTimeFrames) 
+	print "\n standard", average(labelsn)
+	print "\n \n weighted", average(labelsnW)
 	
-	label_standard(args[8], labelsStandard)		
+	print "date", dateToIndex(data, 30, 04, 2010)
+	
+	
+	f = open('../%s.txt'%args[8], 'w')
+	
+	for label in classLabels:
+		if label == 'strong_sell':
+			f.write('1')
+		elif label == 'sell':
+			f.write('2')
+		elif label == 'hold':
+			f.write('3')
+		elif label == 'buy':
+			f.write('4')
+		elif label == 'strong_buy':
+			f.write('5')
 	
     else:
-        print "Usage: python label.py sector ticker start-label[dd-mm-yyyy] end-label[dd-mm-yyyy] label_period label_strategy time_frame output_file"
+        print "Usage: python label.py sector ticker start-label[dd-mm-yyyy] end-label[dd-mm-yyyy] label_period label_strategy time_frame output file"
         print "label_period: Number of stock pricing periods to perform the label analysis over"
         print "label_strategy: 0 = average gain over period, 1 = max gain over period, 2 = end gain over period. All labeling strategies use the period closing price."
         print "time_frame: the length of the period to be labeled"
