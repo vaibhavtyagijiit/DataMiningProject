@@ -103,10 +103,10 @@ def featuresDay(data, day):
 	#ToDo
 	return feats
 def features(data):
-=======
+ return
 # TODO Sector / S&P features
 def features(data, startInd, endInd):
->>>>>>> 9ed96a5683d92990de89e54d2a95b7dd7c219869
+
     feats = []
     for i in range(startInd, endInd):
         feat = []
@@ -296,8 +296,8 @@ if __name__ == '__main__':
     feat = featuresDay(data, day)
     for line in feat:
     	    f.write('%f'%(line))
-=======
+
     data = loadData('basic_materials', 'adm')
     print features(data, 100, 150)
 
->>>>>>> 9ed96a5683d92990de89e54d2a95b7dd7c219869
+

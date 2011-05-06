@@ -155,14 +155,13 @@ def label5Class(data, labels, sbAmt, bAmt, hAmt, sAmt, ssAmt):
     #print lblInd
     return retLabels
 
-<<<<<<< HEAD
 #returns the next working day, well, unless Christmas
 #todo, end of month
-=======
+
 def dateTupleToIndex(data, dmy):
     return dateToIndex(data, dmy[0], dmy[1], dmy[2])
 
->>>>>>> 9ed96a5683d92990de89e54d2a95b7dd7c219869
+
 def dateToIndex(data, day, month, year):
     day = int(day)
     month = int(month)
@@ -276,12 +275,12 @@ if __name__ == '__main__':
 	
 	label_standard(args[8], labelsStandard)		
 	
-    else:
-        print "Usage: python label.py sector ticker start-label[dd-mm-yyyy] end-label[dd-mm-yyyy] label_period label_strategy time_frame output_file"
-        print "label_period: Number of stock pricing periods to perform the label analysis over"
-        print "label_strategy: 0 = average gain over period, 1 = max gain over period, 2 = end gain over period. All labeling strategies use the period closing price."
-        print "time_frame: the length of the period to be labeled"
-=======
+    #else:
+     #   print "Usage: python label.py sector ticker start-label[dd-mm-yyyy] end-label[dd-mm-yyyy] label_period label_strategy time_frame output_file"
+      #  print "label_period: Number of stock pricing periods to perform the label analysis over"
+       # print "label_strategy: 0 = average gain over period, 1 = max gain over period, 2 = end gain over period. All labeling strategies use the period closing price."
+       # print "time_frame: the length of the period to be labeled"
+
         if ticker == "*all*":
             trainBegin = (sday, smonth, syear)
             trainEnd = (eday, emonth, eyear)
@@ -304,7 +303,7 @@ if __name__ == '__main__':
         print "label_period: Number of stock pricing periods to perform the label analysis over"
         print "label_strategy: 0 = average gain over period, 1 = max gain over period, 2 = end gain over period. All labeling strategies use the period closing price."
         print "test_begin: Begin of testing data (labels will not be printed), optional and only for *all*."
->>>>>>> 9ed96a5683d92990de89e54d2a95b7dd7c219869
+
         sys.exit(1)
 
 
