@@ -1,0 +1,4 @@
+#!/bin/bash
+
+java -classpath .:/Applications/weka-3-6-4.app/Contents/Resources/Java/weka.jar SupervisedTester $@
+
